@@ -7,7 +7,7 @@ using UnityEngine;
 public class GoldenSpiralSphere : MonoBehaviour
 {
     // topology type
-    public enum Topology {Triangles = 0, Lines = 3, Points = 5}
+    public enum Topology {Lines = 3, Points = 5}
     
     // mesh components
     private Mesh sphereMesh;
@@ -18,12 +18,14 @@ public class GoldenSpiralSphere : MonoBehaviour
     private int prevPoints;
     private bool inc = true;
     private Topology prevTopo;
+    private bool prevAnim;
 
     [Header("Sphere Settings")] 
     [Range(5, 1000)] public int numPoints = 100;
     public Material meshMaterial;
     public Topology topology = Topology.Points;
     public bool enableRotation;
+    public bool enableAnimation;
 
     // Start is called before the first frame update
     void Start()
@@ -53,19 +55,39 @@ public class GoldenSpiralSphere : MonoBehaviour
             prevTopo = topology;
             DrawMesh();
         }
+        
+        if (prevAnim != enableAnimation)
+        {
+            prevAnim = enableAnimation;
+            if(enableAnimation)
+                StartCoroutine(ChangePointNum());
+        }
     }
 
     IEnumerator ChangePointNum()
     {
-        if (numPoints > 999)    inc = false;
-        else if (numPoints < 6) inc = true;
-        
-        if (inc)    numPoints++;
-        else        numPoints--;
+        while (enableAnimation)
+        {
+            if (numPoints > 999)
+            {
+                inc = false;
+                if(numPoints == prevPoints)
+                    numPoints--;
+            }
+            else if (numPoints < 6)
+            {
+                inc = true;
+                if(numPoints == prevPoints)
+                    numPoints++;
+            }
 
-        yield return new WaitForSeconds(0.005f);
+            if (inc)    numPoints++;
+            else        numPoints--;
+            
+            yield return new WaitForSeconds(0.005f);
+        }
 
-        StartCoroutine(ChangePointNum());
+        yield return null;
     }
 
     void DrawMesh()
@@ -116,19 +138,6 @@ public class GoldenSpiralSphere : MonoBehaviour
             sphereLineIndices[2 * numPoints - 1] = 0;
 
             sphereMesh.SetIndices(sphereLineIndices, MeshTopology.Lines, 0);
-        }
-        else if (topology == Topology.Triangles)
-        {
-            var idx = new int[3 * (numPoints - 2)];
-
-            for (int i = 0; i < numPoints - 3; i++)
-            {
-                idx[3 * i] = i;
-                idx[3 * i + 1] = i + 1;
-                idx[3 * i + 2] = i + 2;
-            }
-
-            sphereMesh.SetIndices(idx, MeshTopology.Triangles, 0);
         }
 
         meshFilter.mesh = sphereMesh;
