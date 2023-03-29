@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class WireframeRenderer : MonoBehaviour
 {
+    public bool enableRotation;
+    
     void Start()
     {
         SkinnedMeshRenderer skinnedMesh = GetComponent<SkinnedMeshRenderer>();
@@ -19,5 +21,13 @@ public class WireframeRenderer : MonoBehaviour
             lineIndices.Add(indices[3 * i]);
         }
         skinnedMesh?.sharedMesh.SetIndices(lineIndices, MeshTopology.Lines, 0);
+    }
+    
+    void Update()
+    {
+        if (enableRotation)
+        {
+            transform.parent.Rotate(0, 50*Time.deltaTime, 0);
+        }
     }
 }
