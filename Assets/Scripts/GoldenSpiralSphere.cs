@@ -7,7 +7,7 @@ using UnityEngine;
 public class GoldenSpiralSphere : MonoBehaviour
 {
     // topology type
-    public enum Topology {Lines = 3, Points = 5}
+    public enum Topology {Triangles = 0, Lines = 3, Points = 5}
     
     // mesh components
     private Mesh sphereMesh;
@@ -138,6 +138,18 @@ public class GoldenSpiralSphere : MonoBehaviour
             sphereLineIndices[2 * numPoints - 1] = 0;
 
             sphereMesh.SetIndices(sphereLineIndices, MeshTopology.Lines, 0);
+        }
+        else if (topology == Topology.Triangles)
+        {
+            var sphereTriIndices = new List<int>();
+            for (int i = 0; i < numPoints-2; i++)
+            {
+                sphereTriIndices.Add(i);
+                sphereTriIndices.Add(i+1);
+                sphereTriIndices.Add(i+2);
+            }
+            
+            sphereMesh.SetIndices(sphereTriIndices, MeshTopology.Triangles, 0);
         }
 
         meshFilter.mesh = sphereMesh;
